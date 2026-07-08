@@ -22,19 +22,20 @@ function Chat() {
     // Загрузка сообщений
     const loadMessages = async () => {
         try {
+            console.log('📋 Загрузка сообщений...');
             const response = await axios.get(`${API_URL}/messages`, {
                 params: { limit: 100 }
             });
             const data = response.data;
+            console.log(`✅ Загружено ${data.length} сообщений`);
             setMessages(data);
             if (data.length > 0) {
                 setLastTimestamp(data[data.length - 1].created_at);
             }
             setLoading(false);
-            // Прокручиваем вниз после загрузки
             setTimeout(scrollToBottom, 100);
         } catch (error) {
-            console.error('Error loading messages:', error);
+            console.error('❌ Ошибка загрузки сообщений:', error);
             setLoading(false);
         }
     };
@@ -48,16 +49,16 @@ function Chat() {
             const newMessages = response.data;
             
             if (newMessages.length > 0) {
+                console.log(`📨 Получено ${newMessages.length} новых сообщений`);
                 setMessages(prev => [...prev, ...newMessages]);
                 setLastTimestamp(newMessages[newMessages.length - 1].created_at);
                 
-                // Если были внизу, прокручиваем вниз
                 if (isAtBottom) {
                     setTimeout(scrollToBottom, 100);
                 }
             }
         } catch (error) {
-            console.error('Error checking new messages:', error);
+            console.error('❌ Ошибка проверки новых сообщений:', error);
         }
     };
 
@@ -79,15 +80,27 @@ function Chat() {
         setShowScrollButton(bottom > 200);
     };
 
-    // Отправка сообщения
+    // Отправка сообщения (ИСПРАВЛЕННАЯ ВЕРСИЯ)
     const sendMessage = async (text, media = null) => {
         try {
+            console.log('📤 Отправка сообщения...');
+            console.log('👤 Пользователь:', user);
+            console.log('📝 Текст:', text);
+            console.log('🖼️ Медиа:', media);
+
+            // ✅ ПРОВЕРКА: есть ли пользователь
+            if (!user) {
+                alert('❌ Ошибка: пользователь не авторизован');
+                return;
+            }
+
             let mediaUrl = null;
             let mediaType = null;
             let fileName = null;
             let fileSize = null;
 
             if (media) {
+                console.log('📤 Загрузка файла...');
                 const formData = new FormData();
                 formData.append('file', media);
 
@@ -99,11 +112,21 @@ function Chat() {
                 mediaType = uploadResponse.data.mediaType;
                 fileName = uploadResponse.data.fileName;
                 fileSize = uploadResponse.data.fileSize;
+                console.log('✅ Файл загружен:', fileName);
+            }
+
+            // ✅ ГАРАНТИРУЕМ, что username есть
+            const finalUsername = user.username || user.email?.split('@')[0] || 'anonymous';
+            const finalUserId = user.id;
+
+            if (!finalUserId) {
+                alert('❌ Ошибка: ID пользователя не найден');
+                return;
             }
 
             const messageData = {
-                user_id: user.id,
-                username: user.username,
+                user_id: finalUserId,
+                username: finalUsername,
                 text: text || '',
                 media_url: mediaUrl,
                 media_type: mediaType,
@@ -111,14 +134,20 @@ function Chat() {
                 file_size: fileSize
             };
 
-            await axios.post(`${API_URL}/messages`, messageData);
+            console.log('📦 Отправляемые данные:', messageData);
+
+            const response = await axios.post(`${API_URL}/messages`, messageData);
+            console.log('✅ Успешно отправлено:', response.data);
+            
             await loadMessages();
             
             // Прокручиваем вниз после отправки
             setTimeout(scrollToBottom, 100);
         } catch (error) {
-            console.error('Error sending message:', error);
-            alert('Не удалось отправить сообщение');
+            console.error('❌ Ошибка отправки:', error);
+            console.error('❌ Ответ сервера:', error.response?.data);
+            console.error('❌ Статус:', error.response?.status);
+            alert(`Не удалось отправить сообщение: ${error.response?.data?.error || error.message}`);
         }
     };
 
@@ -128,12 +157,14 @@ function Chat() {
             const response = await axios.get(`${API_URL}/users/online`);
             setOnlineUsers(response.data);
         } catch (error) {
-            console.error('Error loading online users:', error);
+            console.error('❌ Ошибка загрузки онлайн пользователей:', error);
         }
     };
 
     // Инициализация
     useEffect(() => {
+        console.log('🔄 Инициализация чата...');
+        console.log('👤 Текущий пользователь:', user);
         loadMessages();
         loadOnlineUsers();
         
@@ -185,7 +216,7 @@ function Chat() {
                         <h1 className="text-lg sm:text-xl font-semibold text-gray-800">Общий чат</h1>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-4">
-                        <span className="text-xs sm:text-sm text-gray-600">👤 {user?.username}</span>
+                        <span className="text-xs sm:text-sm text-gray-600">👤 {user?.username || user?.email || 'Пользователь'}</span>
                         <button
                             onClick={handleLogout}
                             className="text-xs sm:text-sm text-red-500 hover:text-red-700 transition"
