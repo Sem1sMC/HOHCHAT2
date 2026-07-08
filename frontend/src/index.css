@@ -16,7 +16,7 @@ body {
     overscroll-behavior: none;
 }
 
-/* Стили для скроллбара */
+/* ===== СТИЛИ ДЛЯ СКРОЛЛБАРА ===== */
 ::-webkit-scrollbar {
     width: 5px;
     height: 5px;
@@ -43,13 +43,12 @@ body {
     }
 }
 
-/* Отключаем выделение текста на кнопках */
+/* ===== ОБЩИЕ СТИЛИ ===== */
 button {
     -webkit-tap-highlight-color: transparent;
     user-select: none;
 }
 
-/* Улучшенный ввод на мобильных */
 input, textarea {
     -webkit-appearance: none;
     appearance: none;
@@ -59,5 +58,237 @@ input, textarea {
 @supports (padding: max(0px)) {
     .safe-area-bottom {
         padding-bottom: max(env(safe-area-inset-bottom), 0px);
+    }
+}
+
+/* ===== СТИЛИ ДЛЯ ГОЛОСОВЫХ КАНАЛОВ ===== */
+
+/* Контейнер голосовых каналов */
+.voice-channels-container {
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+}
+
+/* Заголовок голосовых каналов */
+.voice-channels-header {
+    color: #96989d;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Отдельный голосовой канал */
+.voice-channel {
+    background: #2a2a2a;
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 6px;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+}
+
+.voice-channel:hover {
+    background: #333333;
+    border-color: #404040;
+}
+
+/* Голосовой канал - подключен */
+.voice-channel.connected {
+    border-color: #43b581;
+    background: #1e3a2a;
+}
+
+.voice-channel.connected:hover {
+    background: #244c34;
+}
+
+/* Название канала */
+.voice-channel-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.voice-channel-name .icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.voice-channel-name .channel-title {
+    flex: 1;
+}
+
+.voice-channel-name .status-badge {
+    font-size: 10px;
+    color: #43b581;
+    background: rgba(67, 181, 129, 0.15);
+    padding: 2px 8px;
+    border-radius: 12px;
+    margin-left: 8px;
+    animation: pulse-green 2s ease-in-out infinite;
+}
+
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Кнопки управления каналом */
+.voice-channel-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.voice-channel-actions button {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-join {
+    background: #43b581;
+    color: white;
+}
+
+.btn-join:hover {
+    background: #3ca374;
+}
+
+.btn-leave {
+    background: #ed4245;
+    color: white;
+}
+
+.btn-leave:hover {
+    background: #d63d40;
+}
+
+/* Список участников */
+.voice-participants {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #404040;
+}
+
+.voice-participant {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 13px;
+    color: #b9bbbe;
+}
+
+.voice-participant .avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #404040;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.voice-participant .username {
+    flex: 1;
+}
+
+.voice-participant .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.voice-participant .status-dot.speaking {
+    background: #43b581;
+    animation: pulse-green 1s ease-in-out infinite;
+}
+
+.voice-participant .status-dot.muted {
+    background: #ed4245;
+}
+
+.voice-participant .status-dot.idle {
+    background: #4f545c;
+}
+
+/* Кнопки управления звуком (микрофон и динамик) */
+.voice-controls {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #404040;
+}
+
+.voice-controls button {
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #404040;
+    color: #b9bbbe;
+}
+
+.voice-controls button:hover {
+    background: #4f545c;
+}
+
+.voice-controls button.active {
+    background: #43b581;
+    color: white;
+}
+
+.voice-controls button.muted {
+    background: #ed4245;
+    color: white;
+}
+
+/* Пустое состояние */
+.voice-empty {
+    color: #4f545c;
+    font-size: 13px;
+    text-align: center;
+    padding: 16px 0;
+}
+
+/* Адаптив для мобильных */
+@media (max-width: 640px) {
+    .voice-channel {
+        padding: 10px 12px;
+    }
+    
+    .voice-channel-name {
+        font-size: 13px;
+    }
+    
+    .voice-channel-actions button {
+        padding: 4px 10px;
+        font-size: 11px;
+    }
+    
+    .voice-participant {
+        font-size: 12px;
     }
 }
