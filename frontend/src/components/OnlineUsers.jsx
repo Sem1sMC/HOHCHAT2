@@ -4,11 +4,12 @@ import Call from './Call';
 function OnlineUsers({ users, currentUser }) {
     const [callState, setCallState] = useState(null);
 
-    const startCall = (user) => {
+    const startCall = (user, isVideo = false) => {
         setCallState({
             caller: currentUser?.username || 'Вы',
             callee: user.username,
-            userId: user.id
+            userId: user.id,
+            isVideo: isVideo
         });
     };
 
@@ -26,9 +27,9 @@ function OnlineUsers({ users, currentUser }) {
                 <div className="space-y-2">
                     {users.map((user) => (
                         <div key={user.id} className="flex items-center justify-between gap-2 text-sm">
-                            <div className="flex items-center gap-2">
-                                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                                <span className="text-gray-700">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <span className="w-2 h-2 bg-green-500 rounded-full flex-shrink-0"></span>
+                                <span className="text-gray-700 truncate">
                                     {user.id === currentUser?.id ? (
                                         <span className="font-semibold text-blue-600">
                                             {user.username} (вы)
@@ -39,15 +40,24 @@ function OnlineUsers({ users, currentUser }) {
                                 </span>
                             </div>
                             
-                            {/* Кнопка звонка (только не для себя) */}
+                            {/* Кнопки звонка (только не для себя) */}
                             {user.id !== currentUser?.id && (
-                                <button
-                                    onClick={() => startCall(user)}
-                                    className="p-1 text-sm hover:bg-blue-50 rounded-lg transition"
-                                    title="Позвонить"
-                                >
-                                    📞
-                                </button>
+                                <div className="flex gap-1 flex-shrink-0">
+                                    <button
+                                        onClick={() => startCall(user, false)}
+                                        className="p-1.5 text-sm hover:bg-green-50 rounded-lg transition"
+                                        title="Голосовой звонок"
+                                    >
+                                        🎤
+                                    </button>
+                                    <button
+                                        onClick={() => startCall(user, true)}
+                                        className="p-1.5 text-sm hover:bg-blue-50 rounded-lg transition"
+                                        title="Видеозвонок"
+                                    >
+                                        📹
+                                    </button>
+                                </div>
                             )}
                         </div>
                     ))}
@@ -62,6 +72,8 @@ function OnlineUsers({ users, currentUser }) {
                 <Call
                     caller={callState.caller}
                     callee={callState.callee}
+                    userId={callState.userId}
+                    isVideo={callState.isVideo}
                     onEndCall={endCall}
                 />
             )}
