@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import OnlineUsers from './OnlineUsers';
-import VoiceChannels from './VoiceChannels';
+import VoiceChannels from './VoiceChannels';  // 👈 ДОБАВЬТЕ ЭТОТ ИМПОРТ
 
 const API_URL = 'https://hohchat.onrender.com/api';
 
@@ -195,15 +195,15 @@ function Chat() {
                 </div>
             </header>
 
-            {/* Основная часть */}
+            {/* Основная часть - 3 колонки как в Discord */}
             <div className="flex-1 flex flex-col md:flex-row overflow-hidden max-w-7xl w-full mx-auto">
-                {/* Левая колонка - голосовые каналы */}
-                <div className="w-full md:w-64 bg-gray-900 p-4 border-b md:border-b-0 md:border-r border-gray-700 overflow-y-auto">
+                {/* ЛЕВАЯ КОЛОНКА - голосовые каналы */}
+                <div className="w-full md:w-72 bg-gray-900 p-4 border-b md:border-b-0 md:border-r border-gray-700 overflow-y-auto">
                     <VoiceChannels currentUser={user} />
                 </div>
 
-                {/* Центр - сообщения */}
-                <div className="flex-1 flex flex-col overflow-hidden">
+                {/* ЦЕНТР - сообщения */}
+                <div className="flex-1 flex flex-col overflow-hidden relative">
                     <div 
                         ref={messagesContainerRef}
                         onScroll={handleScroll}
@@ -238,7 +238,7 @@ function Chat() {
                     </div>
                 </div>
 
-                {/* Правая колонка - онлайн пользователи */}
+                {/* ПРАВАЯ КОЛОНКА - онлайн пользователи */}
                 <div className="hidden md:block md:w-64 bg-gray-900 border-l border-gray-700 p-4 overflow-y-auto">
                     <OnlineUsers users={onlineUsers} currentUser={user} />
                 </div>
