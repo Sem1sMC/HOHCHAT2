@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #f3f4f6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior: none;
+}
+
+/* Стили для скроллбара */
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Для мобильных устройств */
+@media (max-width: 640px) {
+    ::-webkit-scrollbar {
+        width: 3px;
+        height: 3px;
+    }
+}
+
+/* Отключаем выделение текста на кнопках */
+button {
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+/* Улучшенный ввод на мобильных */
+input, textarea {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Safe area для iPhone */
+@supports (padding: max(0px)) {
+    .safe-area-bottom {
+        padding-bottom: max(env(safe-area-inset-bottom), 0px);
+    }
+}
