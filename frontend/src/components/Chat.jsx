@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import OnlineUsers from './OnlineUsers';
-import VoiceChannels from './VoiceChannels';  // 👈 ДОБАВЬТЕ ЭТОТ ИМПОРТ
 
 const API_URL = 'https://hohchat.onrender.com/api';
 
@@ -20,7 +19,6 @@ function Chat() {
     const messagesEndRef = useRef(null);
     const messagesContainerRef = useRef(null);
 
-    // Загрузка сообщений
     const loadMessages = async () => {
         try {
             const response = await axios.get(`${API_URL}/messages`, {
@@ -39,7 +37,6 @@ function Chat() {
         }
     };
 
-    // Проверка новых сообщений
     const checkNewMessages = async () => {
         if (!lastTimestamp) return;
         
@@ -60,14 +57,12 @@ function Chat() {
         }
     };
 
-    // Прокрутка вниз
     const scrollToBottom = () => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
         }
     };
 
-    // Обработка скролла
     const handleScroll = () => {
         if (!messagesContainerRef.current) return;
         
@@ -78,7 +73,6 @@ function Chat() {
         setShowScrollButton(bottom > 200);
     };
 
-    // Отправка сообщения
     const sendMessage = async (text, media = null) => {
         try {
             if (!user) return;
@@ -121,7 +115,6 @@ function Chat() {
         }
     };
 
-    // Загрузка онлайн пользователей
     const loadOnlineUsers = async () => {
         try {
             const response = await axios.get(`${API_URL}/users/online`);
@@ -131,7 +124,6 @@ function Chat() {
         }
     };
 
-    // Инициализация
     useEffect(() => {
         loadMessages();
         loadOnlineUsers();
@@ -148,7 +140,6 @@ function Chat() {
         return () => clearInterval(updateStatus);
     }, []);
 
-    // Polling для новых сообщений
     useEffect(() => {
         if (!lastTimestamp) return;
         
@@ -195,14 +186,45 @@ function Chat() {
                 </div>
             </header>
 
-            {/* Основная часть - 3 колонки как в Discord */}
-            <div className="flex-1 flex flex-col md:flex-row overflow-hidden max-w-7xl w-full mx-auto">
-                {/* ЛЕВАЯ КОЛОНКА - голосовые каналы */}
-                <div className="w-full md:w-72 bg-gray-900 p-4 border-b md:border-b-0 md:border-r border-gray-700 overflow-y-auto">
-                    <VoiceChannels currentUser={user} />
+            {/* ===== ГОЛОСОВЫЕ КАНАЛЫ ===== */}
+            <div className="bg-gray-800 px-4 py-2 border-b border-gray-700 flex-shrink-0">
+                <div className="max-w-7xl mx-auto flex items-center gap-3 overflow-x-auto">
+                    <span className="text-white text-xs font-semibold uppercase tracking-wider flex-shrink-0">
+                        🔊 Голосовые
+                    </span>
+                    
+                    <button 
+                        className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-white text-sm flex-shrink-0"
+                        onClick={() => alert('Подключение к голосовому каналу...')}
+                    >
+                        <span>🔊</span>
+                        Общий
+                        <span className="text-xs text-green-400">● 2</span>
+                    </button>
+                    
+                    <button 
+                        className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-white text-sm flex-shrink-0"
+                        onClick={() => alert('Подключение к голосовому каналу...')}
+                    >
+                        <span>🎮</span>
+                        Игровой
+                        <span className="text-xs text-gray-400">● 0</span>
+                    </button>
+                    
+                    <button 
+                        className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-white text-sm flex-shrink-0"
+                        onClick={() => alert('Подключение к голосовому каналу...')}
+                    >
+                        <span>🎵</span>
+                        Музыка
+                        <span className="text-xs text-gray-400">● 0</span>
+                    </button>
                 </div>
+            </div>
 
-                {/* ЦЕНТР - сообщения */}
+            {/* Основная часть */}
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden max-w-7xl w-full mx-auto">
+                {/* Сообщения */}
                 <div className="flex-1 flex flex-col overflow-hidden relative">
                     <div 
                         ref={messagesContainerRef}
@@ -213,7 +235,6 @@ function Chat() {
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Кнопка прокрутки вниз */}
                     {showScrollButton && (
                         <button
                             onClick={scrollToBottom}
@@ -232,13 +253,12 @@ function Chat() {
                         </button>
                     )}
 
-                    {/* Поле ввода */}
                     <div className="flex-shrink-0 p-3 sm:p-4 bg-gray-800 border-t border-gray-700">
                         <MessageInput onSend={sendMessage} />
                     </div>
                 </div>
 
-                {/* ПРАВАЯ КОЛОНКА - онлайн пользователи */}
+                {/* Онлайн пользователи */}
                 <div className="hidden md:block md:w-64 bg-gray-900 border-l border-gray-700 p-4 overflow-y-auto">
                     <OnlineUsers users={onlineUsers} currentUser={user} />
                 </div>
