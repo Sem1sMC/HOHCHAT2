@@ -5,7 +5,7 @@ import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import OnlineUsers from './OnlineUsers';
 
-const API_URL = 'https://hohchat.onrender.com/api';
+const API_URL = 'https://hohchat.onrender.com/api';  // 👈 ПРАВИЛЬНЫЙ URL
 
 function Chat() {
     const { user, logout } = useAuth();
@@ -21,10 +21,12 @@ function Chat() {
 
     const loadMessages = async () => {
         try {
+            console.log('📋 Загрузка сообщений...');
             const response = await axios.get(`${API_URL}/messages`, {
                 params: { limit: 100 }
             });
             const data = response.data;
+            console.log(`✅ Загружено ${data.length} сообщений`);
             setMessages(data);
             if (data.length > 0) {
                 setLastTimestamp(data[data.length - 1].created_at);
@@ -32,7 +34,7 @@ function Chat() {
             setLoading(false);
             setTimeout(scrollToBottom, 100);
         } catch (error) {
-            console.error('Error loading messages:', error);
+            console.error('❌ Ошибка загрузки:', error);
             setLoading(false);
         }
     };
@@ -45,6 +47,7 @@ function Chat() {
             const newMessages = response.data;
             
             if (newMessages.length > 0) {
+                console.log(`📨 Новых сообщений: ${newMessages.length}`);
                 setMessages(prev => [...prev, ...newMessages]);
                 setLastTimestamp(newMessages[newMessages.length - 1].created_at);
                 
@@ -53,7 +56,7 @@ function Chat() {
                 }
             }
         } catch (error) {
-            console.error('Error checking new messages:', error);
+            console.error('❌ Ошибка проверки новых сообщений:', error);
         }
     };
 
@@ -75,7 +78,13 @@ function Chat() {
 
     const sendMessage = async (text, media = null) => {
         try {
-            if (!user) return;
+            console.log('📤 Отправка сообщения...');
+            console.log('👤 Пользователь:', user);
+            
+            if (!user) {
+                alert('Пользователь не авторизован');
+                return;
+            }
 
             let mediaUrl = null;
             let mediaType = null;
@@ -94,11 +103,12 @@ function Chat() {
                 mediaType = uploadResponse.data.mediaType;
                 fileName = uploadResponse.data.fileName;
                 fileSize = uploadResponse.data.fileSize;
+                console.log('✅ Файл загружен:', fileName);
             }
 
             const messageData = {
                 user_id: user.id,
-                username: user.username || 'anonymous',
+                username: user.username || user.email?.split('@')[0] || 'anonymous',
                 text: text || '',
                 media_url: mediaUrl,
                 media_type: mediaType,
@@ -106,12 +116,17 @@ function Chat() {
                 file_size: fileSize
             };
 
-            await axios.post(`${API_URL}/messages`, messageData);
+            console.log('📦 Данные для отправки:', messageData);
+
+            const response = await axios.post(`${API_URL}/messages`, messageData);
+            console.log('✅ Сообщение отправлено:', response.data);
+            
             await loadMessages();
             setTimeout(scrollToBottom, 100);
         } catch (error) {
-            console.error('Error sending message:', error);
-            alert('Не удалось отправить сообщение');
+            console.error('❌ Ошибка отправки:', error);
+            console.error('❌ Ответ сервера:', error.response?.data);
+            alert(`Не удалось отправить сообщение: ${error.response?.data?.error || error.message}`);
         }
     };
 
@@ -120,11 +135,13 @@ function Chat() {
             const response = await axios.get(`${API_URL}/users/online`);
             setOnlineUsers(response.data);
         } catch (error) {
-            console.error('Error loading online users:', error);
+            console.error('❌ Ошибка загрузки онлайн:', error);
         }
     };
 
     useEffect(() => {
+        console.log('🔄 Chat инициализирован');
+        console.log('👤 Пользователь:', user);
         loadMessages();
         loadOnlineUsers();
         
@@ -159,8 +176,8 @@ function Chat() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-gray-500">Загрузка сообщений...</div>
+            <div className="min-h-screen flex items-center justify-center bg-gray-900">
+                <div className="text-gray-400">Загрузка сообщений...</div>
             </div>
         );
     }
@@ -195,7 +212,7 @@ function Chat() {
                     
                     <button 
                         className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-white text-sm flex-shrink-0"
-                        onClick={() => alert('Подключение к голосовому каналу...')}
+                        onClick={() => alert('🎤 Подключение к голосовому каналу...')}
                     >
                         <span>🔊</span>
                         Общий
@@ -204,7 +221,7 @@ function Chat() {
                     
                     <button 
                         className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-white text-sm flex-shrink-0"
-                        onClick={() => alert('Подключение к голосовому каналу...')}
+                        onClick={() => alert('🎤 Подключение к голосовому каналу...')}
                     >
                         <span>🎮</span>
                         Игровой
@@ -213,7 +230,7 @@ function Chat() {
                     
                     <button 
                         className="flex items-center gap-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded-lg transition text-white text-sm flex-shrink-0"
-                        onClick={() => alert('Подключение к голосовому каналу...')}
+                        onClick={() => alert('🎤 Подключение к голосовому каналу...')}
                     >
                         <span>🎵</span>
                         Музыка
