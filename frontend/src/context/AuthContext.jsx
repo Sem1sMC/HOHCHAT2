@@ -1,7 +1,8 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api';
+// ✅ ПРАВИЛЬНЫЙ URL для продакшена
+const API_URL = 'https://hohchat.onrender.com/api';
 
 const AuthContext = createContext();
 
@@ -19,33 +20,49 @@ export function AuthProvider({ children }) {
 
     const login = async (email, password) => {
         try {
+            console.log('📤 Login attempt to:', `${API_URL}/auth/login`);
+            
             const response = await axios.post(`${API_URL}/auth/login`, {
                 email,
                 password
             });
             
+            console.log('✅ Login response:', response.data);
+            
             const userData = response.data.user;
             setUser(userData);
             localStorage.setItem('chatUser', JSON.stringify(userData));
-            localStorage.setItem('accessToken', response.data.session.access_token);
+            localStorage.setItem('accessToken', response.data.session?.access_token || '');
             
             return { success: true };
         } catch (error) {
-            return { success: false, error: error.response?.data?.error || 'Login failed' };
+            console.error('❌ Login error:', error);
+            return { 
+                success: false, 
+                error: error.response?.data?.error || 'Login failed' 
+            };
         }
     };
 
     const register = async (email, password, username) => {
         try {
+            console.log('📤 Register attempt to:', `${API_URL}/auth/register`);
+            
             const response = await axios.post(`${API_URL}/auth/register`, {
                 email,
                 password,
                 username
             });
             
+            console.log('✅ Register response:', response.data);
+            
             return { success: true, user: response.data.user };
         } catch (error) {
-            return { success: false, error: error.response?.data?.error || 'Registration failed' };
+            console.error('❌ Register error:', error);
+            return { 
+                success: false, 
+                error: error.response?.data?.error || 'Registration failed' 
+            };
         }
     };
 
