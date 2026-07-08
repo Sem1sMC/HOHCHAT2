@@ -5,7 +5,7 @@ import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import OnlineUsers from './OnlineUsers';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://hohchat.onrender.com/api';
 
 function Chat() {
     const { user, logout } = useAuth();
