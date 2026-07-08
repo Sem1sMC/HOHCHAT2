@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import OnlineUsers from './OnlineUsers';
+import VoiceChannels from './VoiceChannels';
 
 const API_URL = 'https://hohchat.onrender.com/api';
 
@@ -22,12 +23,10 @@ function Chat() {
     // Загрузка сообщений
     const loadMessages = async () => {
         try {
-            console.log('📋 Загрузка сообщений...');
             const response = await axios.get(`${API_URL}/messages`, {
                 params: { limit: 100 }
             });
             const data = response.data;
-            console.log(`✅ Загружено ${data.length} сообщений`);
             setMessages(data);
             if (data.length > 0) {
                 setLastTimestamp(data[data.length - 1].created_at);
@@ -35,7 +34,7 @@ function Chat() {
             setLoading(false);
             setTimeout(scrollToBottom, 100);
         } catch (error) {
-            console.error('❌ Ошибка загрузки сообщений:', error);
+            console.error('Error loading messages:', error);
             setLoading(false);
         }
     };
@@ -49,7 +48,6 @@ function Chat() {
             const newMessages = response.data;
             
             if (newMessages.length > 0) {
-                console.log(`📨 Получено ${newMessages.length} новых сообщений`);
                 setMessages(prev => [...prev, ...newMessages]);
                 setLastTimestamp(newMessages[newMessages.length - 1].created_at);
                 
@@ -58,7 +56,7 @@ function Chat() {
                 }
             }
         } catch (error) {
-            console.error('❌ Ошибка проверки новых сообщений:', error);
+            console.error('Error checking new messages:', error);
         }
     };
 
@@ -80,19 +78,10 @@ function Chat() {
         setShowScrollButton(bottom > 200);
     };
 
-    // Отправка сообщения (ИСПРАВЛЕННАЯ ВЕРСИЯ)
+    // Отправка сообщения
     const sendMessage = async (text, media = null) => {
         try {
-            console.log('📤 Отправка сообщения...');
-            console.log('👤 Пользователь:', user);
-            console.log('📝 Текст:', text);
-            console.log('🖼️ Медиа:', media);
-
-            // ✅ ПРОВЕРКА: есть ли пользователь
-            if (!user) {
-                alert('❌ Ошибка: пользователь не авторизован');
-                return;
-            }
+            if (!user) return;
 
             let mediaUrl = null;
             let mediaType = null;
@@ -100,7 +89,6 @@ function Chat() {
             let fileSize = null;
 
             if (media) {
-                console.log('📤 Загрузка файла...');
                 const formData = new FormData();
                 formData.append('file', media);
 
@@ -112,21 +100,11 @@ function Chat() {
                 mediaType = uploadResponse.data.mediaType;
                 fileName = uploadResponse.data.fileName;
                 fileSize = uploadResponse.data.fileSize;
-                console.log('✅ Файл загружен:', fileName);
-            }
-
-            // ✅ ГАРАНТИРУЕМ, что username есть
-            const finalUsername = user.username || user.email?.split('@')[0] || 'anonymous';
-            const finalUserId = user.id;
-
-            if (!finalUserId) {
-                alert('❌ Ошибка: ID пользователя не найден');
-                return;
             }
 
             const messageData = {
-                user_id: finalUserId,
-                username: finalUsername,
+                user_id: user.id,
+                username: user.username || 'anonymous',
                 text: text || '',
                 media_url: mediaUrl,
                 media_type: mediaType,
@@ -134,20 +112,12 @@ function Chat() {
                 file_size: fileSize
             };
 
-            console.log('📦 Отправляемые данные:', messageData);
-
-            const response = await axios.post(`${API_URL}/messages`, messageData);
-            console.log('✅ Успешно отправлено:', response.data);
-            
+            await axios.post(`${API_URL}/messages`, messageData);
             await loadMessages();
-            
-            // Прокручиваем вниз после отправки
             setTimeout(scrollToBottom, 100);
         } catch (error) {
-            console.error('❌ Ошибка отправки:', error);
-            console.error('❌ Ответ сервера:', error.response?.data);
-            console.error('❌ Статус:', error.response?.status);
-            alert(`Не удалось отправить сообщение: ${error.response?.data?.error || error.message}`);
+            console.error('Error sending message:', error);
+            alert('Не удалось отправить сообщение');
         }
     };
 
@@ -157,14 +127,12 @@ function Chat() {
             const response = await axios.get(`${API_URL}/users/online`);
             setOnlineUsers(response.data);
         } catch (error) {
-            console.error('❌ Ошибка загрузки онлайн пользователей:', error);
+            console.error('Error loading online users:', error);
         }
     };
 
     // Инициализация
     useEffect(() => {
-        console.log('🔄 Инициализация чата...');
-        console.log('👤 Текущий пользователь:', user);
         loadMessages();
         loadOnlineUsers();
         
@@ -207,19 +175,19 @@ function Chat() {
     }
 
     return (
-        <div className="h-screen flex flex-col bg-gray-50">
+        <div className="h-screen flex flex-col bg-gray-900">
             {/* Шапка */}
-            <header className="bg-white shadow-sm border-b border-gray-200 px-4 py-3 flex-shrink-0">
-                <div className="max-w-6xl mx-auto flex justify-between items-center">
+            <header className="bg-gray-800 shadow-sm border-b border-gray-700 px-4 py-3 flex-shrink-0">
+                <div className="max-w-7xl mx-auto flex justify-between items-center">
                     <div className="flex items-center gap-2">
                         <span className="text-2xl">💬</span>
-                        <h1 className="text-lg sm:text-xl font-semibold text-gray-800">Общий чат</h1>
+                        <h1 className="text-lg sm:text-xl font-semibold text-white">HOHCHAT</h1>
                     </div>
                     <div className="flex items-center gap-2 sm:gap-4">
-                        <span className="text-xs sm:text-sm text-gray-600">👤 {user?.username || user?.email || 'Пользователь'}</span>
+                        <span className="text-xs sm:text-sm text-gray-400">👤 {user?.username}</span>
                         <button
                             onClick={handleLogout}
-                            className="text-xs sm:text-sm text-red-500 hover:text-red-700 transition"
+                            className="text-xs sm:text-sm text-red-500 hover:text-red-400 transition"
                         >
                             Выйти
                         </button>
@@ -228,9 +196,14 @@ function Chat() {
             </header>
 
             {/* Основная часть */}
-            <div className="flex-1 flex flex-col md:flex-row overflow-hidden max-w-6xl w-full mx-auto">
-                {/* Сообщения */}
-                <div className="flex-1 flex flex-col overflow-hidden relative">
+            <div className="flex-1 flex flex-col md:flex-row overflow-hidden max-w-7xl w-full mx-auto">
+                {/* Левая колонка - голосовые каналы */}
+                <div className="w-full md:w-64 bg-gray-900 p-4 border-b md:border-b-0 md:border-r border-gray-700 overflow-y-auto">
+                    <VoiceChannels currentUser={user} />
+                </div>
+
+                {/* Центр - сообщения */}
+                <div className="flex-1 flex flex-col overflow-hidden">
                     <div 
                         ref={messagesContainerRef}
                         onScroll={handleScroll}
@@ -260,13 +233,13 @@ function Chat() {
                     )}
 
                     {/* Поле ввода */}
-                    <div className="flex-shrink-0 p-3 sm:p-4 bg-white border-t border-gray-200">
+                    <div className="flex-shrink-0 p-3 sm:p-4 bg-gray-800 border-t border-gray-700">
                         <MessageInput onSend={sendMessage} />
                     </div>
                 </div>
 
-                {/* Онлайн пользователи - скрываем на мобильных */}
-                <div className="hidden md:block md:w-64 bg-white border-l border-gray-200 p-4 overflow-y-auto">
+                {/* Правая колонка - онлайн пользователи */}
+                <div className="hidden md:block md:w-64 bg-gray-900 border-l border-gray-700 p-4 overflow-y-auto">
                     <OnlineUsers users={onlineUsers} currentUser={user} />
                 </div>
             </div>
